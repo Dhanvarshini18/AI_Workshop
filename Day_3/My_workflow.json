@@ -1,0 +1,342 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Task Reports",
+        "formDescription": "Kindly fill the daily task reports.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Yesterday's Plan",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Today's plan",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Status",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Completed"
+                  },
+                  {
+                    "option": "Blocker"
+                  },
+                  {
+                    "option": "Urgency"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        0
+      ],
+      "id": "2d05ea3f-11a8-4ded-b2ac-5fdeb0c9cfae",
+      "name": "On form submission",
+      "webhookId": "7fa5a7e4-62a9-4000-bcae-e59ecffa0825"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1T0LN9FPpx2uhg4QfSIJpaZYyic75mlMxViNcpA6fzAk",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T0LN9FPpx2uhg4QfSIJpaZYyic75mlMxViNcpA6fzAk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T0LN9FPpx2uhg4QfSIJpaZYyic75mlMxViNcpA6fzAk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Email ID": "={{ $json['Email ID'] }}",
+            "yESTERDAY'S pLAN": "={{ $json['Yesterday\\'s Plan'] }}",
+            "Today's Plan": "={{ $json['Today\\'s plan'] }}",
+            "Status": "={{ $json.Status }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "yESTERDAY'S pLAN",
+              "displayName": "yESTERDAY'S pLAN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Today's Plan",
+              "displayName": "Today's Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a00403bc-60f9-42d7-a6f9-f3f14e5f2030",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "npLRZrMp6pk5xpBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f89e356c-17e8-40a1-ab23-611e2fd7c42b",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Urgency",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "14733ec7-be74-4960-9501-fd9127efbdfb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        400,
+        500
+      ],
+      "id": "dac43930-d003-4103-a0d6-fa9cc3209e77",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gWhl78dgLUxHvxAS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Youre an ai agent youre role is to identify what is the status is \n\nHere is the status{{ $json.Status }}\n\noutput you have to show \nemail id {{ $json['Email ID'] }}\nstatus {{ $json.Status }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "cb1e69b9-422c-4eab-a6c0-b80f6943887c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "dhanvarshini.m@snssquare.com",
+        "subject": "Task report ",
+        "emailType": "text",
+        "message": "kindly update the task report for the daily updates",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1140,
+        -80
+      ],
+      "id": "3f001f33-43cf-443f-8752-e2b43cd1252a",
+      "name": "Gmail",
+      "webhookId": "d2e711d1-e02f-4390-86f9-0016f2e5a74e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FOCFHzEztG17esQy",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        80
+      ],
+      "id": "c5861b9c-f883-4d76-b230-4d351ae20841",
+      "name": "Gmail1",
+      "webhookId": "ee5e79a2-1ba8-468e-aac6-2f33733c2407"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2aab577e-0856-4e38-8220-e5255589455e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7f98e38aaf9a91c76094c178be06f3bed8beac3f5839077db994f603601d0dea"
+  },
+  "id": "mSZKP3lj4zboTvpY",
+  "tags": []
+}
