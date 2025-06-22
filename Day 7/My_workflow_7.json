@@ -1,0 +1,353 @@
+{
+  "name": "My workflow 7",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "38141c90-a95b-4c42-bf68-47e36fcac472",
+      "name": "Webhook",
+      "webhookId": "b51e910d-02a7-4607-bdc6-8ba3a4f51c69"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        680,
+        340
+      ],
+      "id": "31c52888-c4d2-4d72-8ef0-b53abc14476f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gWhl78dgLUxHvxAS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a data cleaner AI. Clean and standardize the following lead data:\n{{JSON.stringify($json)}}\nReturn valid: name, email, phone, services in cleaned format.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "84446e74-c660-4cf2-aa19-09cfe8249078",
+      "name": "Lead Extractor AI"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a lead scoring AI. Score this lead from 1–10 based on likelihood to convert:{{ $('Webhook').item.json.body.services }}\n- Services: \n- Email: {{ $('Webhook').item.json.body.email }}\n- Contact:{{ $('Webhook').item.json.body.contact }} \n\nReturn: {\"score\": 8, \"priority\": \"hot\"}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "2a3c31f9-33ab-4b26-9c66-95b1ddba6ec7",
+      "name": "Lead Scoring AI"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "461485f5-96e9-4064-b08a-2490336f9385",
+              "leftValue": 8,
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        20
+      ],
+      "id": "c1621a20-fff6-4a2e-87ad-410e9b474645",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        280
+      ],
+      "id": "3c1500d9-5270-4329-805c-3a9ef131f959",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gWhl78dgLUxHvxAS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "60b956c7-fc01-473b-be77-8d43c5be7a81",
+              "name": "Name ",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "b349b05c-7d8c-4ca7-9550-6a6be0fd72d8",
+              "name": "Email Id ",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "afe1c80f-95e6-48c6-9776-4468e33c660a",
+              "name": "Contact ",
+              "value": "={{ $json.body.contact }}",
+              "type": "string"
+            },
+            {
+              "id": "37ded55d-656c-424c-b79f-caa9aaff1707",
+              "name": "Services looking for ",
+              "value": "={{ $json.body.services }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "84798ed3-dc98-4c6f-b025-92aeffde81f9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "dhanvarshinim18@gmail.com",
+          "mode": "list",
+          "cachedResultName": "dhanvarshinim18@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1780,
+        -80
+      ],
+      "id": "e4ae8ce1-d2ab-49dc-a389-30d3f53d312a",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BWYGHChmEANjlVFg",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "dhanvarshinim18@gmail.com",
+        "subject": "Hot Lead  - Meeting reg",
+        "message": "=<b>HOT LEAD ALERT!</b><br><br>\n<b>Name:</b> {{ $('Edit Fields').item.json['Name '] }}<br>\n<b>Email:</b> {{ $('Edit Fields').item.json['Email Id '] }}<br>\n<b>Service:</b>{{ $('Edit Fields').item.json['Services looking for '] }} <br>\n<b>Score:</b> 8/10<br>\n<b>Meeting Time:</b> <br><br>\n<a href=\"insert_your_calendar_link\">View in Calendar</a>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        -80
+      ],
+      "id": "d11fc070-99c6-46e5-a7c8-d8cc412aee2e",
+      "name": "Gmail",
+      "webhookId": "f2bd18c5-0622-4be5-98d7-87026e0a7a21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VCYg8Udbo1YmEGqP",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a helpful AI assistant.\n\nA potential lead has shown strong interest in our services.\n\nBased on the lead's details, perform the following:\n\nSuggest a good start time for a meeting within the next 24–48 hours, keeping the meeting window between 10:00 AM and 4:00 PM (IST).\n\nAutomatically calculate the end time by adding 30 minutes to the start time.\n\nGenerate a personalized calendar event title that includes the lead’s name and the service they are interested in.\n\nWrite a short and professional event description inviting the person to a 30-minute meeting.\n\n📌 Lead Details:\n\nName:{{ $('Webhook').item.json.body.name }}\n\nEmail: {{ $('Webhook').item.json.body.email }}\n\nPhone Number: {{ $('Webhook').item.json.body.contact }}\n\nService Interested In: {{ $('Webhook').item.json.body.services }}   {\n  \n\"suggested_start_time\": \"2025-06-18T10:30:00+05:30\",\n  \"suggested_end_time\": \"2025-06-18T11:00:00+05:30\",\n  {{ $('Webhook').item.json.body.name }}\"event_title\": \"Consultation Call with  - {{ $('Webhook').item.json.body.services }}\",\n  \"event_description\": \"Hi {{ $('Webhook').item.json.body.name }}, thank you for your interest in our {{ $('Webhook').item.json.body.services }} offering. We've scheduled a 30-minute consultation call to better understand your requirements and provide the best solutions. Looking forward to speaking with you!\"\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1420,
+        -80
+      ],
+      "id": "6a9c93af-19b8-4cfb-a855-a3105e94308c",
+      "name": "Mail composing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Extractor AI",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Lead Scoring AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Extractor AI": {
+      "main": [
+        [
+          {
+            "node": "Lead Scoring AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Scoring AI": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Mail composing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Mail composing",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Lead Extractor AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mail composing": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "365091d8-5c26-496b-a9af-286bea3a6efd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7f98e38aaf9a91c76094c178be06f3bed8beac3f5839077db994f603601d0dea"
+  },
+  "id": "gkJWtpAyDwRPYTAz",
+  "tags": []
+}
